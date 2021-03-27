@@ -7,7 +7,6 @@ from security import authenticate, identity
 from resources.user import UserRegister
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
-from db import db
 
 
 app = Flask(__name__)
@@ -31,11 +30,12 @@ api.add_resource(UserRegister, '/register')
 
 #	SOLO SE VA EJECUTAR EL ARCHIVO app.py
 if __name__ == '__main__':	
-	db.init_app(app)
+    from db import db
+    db.init_app(app)
 
-	if app.config['DEBUG']:
-		@app.before_first_request
-		def create_tables():
-			db.create_all()
+	# if app.config['DEBUG']:
+	# 	@app.before_first_request
+	# 	def create_tables():
+	# 		db.create_all()
 
-	app.run(port=5000)
+	app.run(port=5000, debug=True)
