@@ -29,7 +29,7 @@ api.add_resource(StoreList, '/stores')
 api.add_resource(UserRegister, '/register')
 
 #	SOLO SE VA EJECUTAR EL ARCHIVO app.py
-if __name__ == '__main__':	
+if __name__ == '__main__':
 	from db import db
 	db.init_app(app)
 	app.run(port=5000, debug=True)
