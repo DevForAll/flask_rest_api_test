@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from models.item import ItemModel
 
 #	CLASE ESTUDIANTE ESTA HEREDANDO LA CLASE "RESOURCE"
@@ -74,11 +74,20 @@ class Item(Resource):
 
 
 class ItemList(Resource):
+    @jwt_required(optional=True)
     def get(self):
+#   get_jwt_identity() nos va devolver lo que guardamos en el TOKEN DE ACCESO como IDENTIDAD        
+        user_id = get_jwt_identity()
+
         items_list = []
         items = ItemModel.find_all()
-
         for item in items:
             items_list.append(item.json())
         
-        return {'items': items_list}
+        if user_id: #   VERIFICANDO SI EL USUARIO SE LOGEO O PROPORCIONO HEADER DE AUTORIZACION
+            return {'items': items_list}, 200
+        
+        return {
+            'items': [item['name'] for item in items_list],
+            'message': 'More data available if you log in'
+            }, 200
