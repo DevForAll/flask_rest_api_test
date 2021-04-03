@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from models.item import ItemModel
 
 #	CLASE ESTUDIANTE ESTA HEREDANDO LA CLASE "RESOURCE"
@@ -42,12 +42,16 @@ class Item(Resource):
 
         return item.json(),201
 
+    @jwt_required()
     def delete(self, name):
+        claims = get_jwt()
+        if not claims['is_admin']:
+            return {'message': 'Admin privilege required'}, 401
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
-
-        return {'message': 'Item deleted'}
+            return {'message': 'Item deleted'}
+        return {'message': 'Item not found'}, 404
 
     def put(self, name):
         data = Item.parser.parse_args()
@@ -72,7 +76,7 @@ class Item(Resource):
 class ItemList(Resource):
     def get(self):
         items_list = []
-        items = ItemModel.query.all()
+        items = ItemModel.find_all()
 
         for item in items:
             items_list.append(item.json())
